@@ -54,3 +54,5 @@ Wykorzystanie platformy Knative umożliwia firmie XYZ dynamiczne zarządzanie se
 przekształcającego obrazy do czarno-białych wersji, oraz Serwisu v2, który dodatkowo tworzy archiwa ZIP zawierające zarówno oryginał, czarno-białą wersję, jak i obrazy w sepii.
 Knative Serving pozwala na automatyczne skalowanie tych serwisów w odpowiedzi na aktualne obciążenie, zapewniając optymalizację zasobów.
 Ponadto, za pomocą Knative Eventing, system może automatycznie wyzwalać proces wysyłania powiadomień email po zakończonym przetwarzaniu, informując użytkowników o gotowości ich zamówień.
+
+![demo](img/demo.jpg)
