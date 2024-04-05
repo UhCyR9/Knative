@@ -30,4 +30,27 @@ Knative wprowadza również mechanizm do obsługi zdarzeń, który umożliwia tw
 
 ![knative_architecture](img/knative_architecture.png)
 
+### Stos technologiczny:
+* Kubernetes - środowisko uruchomieniowe dla Knative. Zapewnia orkierstrację kontenerów, zarządzanie zasobami i skalowalność.
+* Knative:
+  * Serving - służący do wdrażania i zarządzania serwisami, umożliwa łatwe skalowanie i routing ruchu.
+  * Eventing - służący do obsługi zdarzeń w aplikacji.
+* Python:
+  * FastAPI - framework przydatny do tworzenia prostych aplikacji webowych.
+  * Pillow - biblioteka do przetwarzania obrazów.
+* Docker - służący do konteneryzacji aplikacji, ułatwiający wdrażanie w Knative i Kubernetes.
+* Prometheus i Grafana - służące do monitorowania metryk aplikacji.
+* SendGrid - pomocny w mechaniźmie wysyłania e-maili.
+
 ## Studium Problemu
+
+### Problem:
+W firmie XYZ, zajmującej się fotografią i mediami cyfrowymi, istnieje potrzeba efektywnego przetwarzania wysyłanych przez użytkowników obrazów.
+Różnorodność wymagań co do formatów przetwarzania (np. czarno-białe, sepii, kompresji) oraz wahania w ilości przesyłanych danych wymagają rozwiązania,
+które jest skalowalne i może dynamicznie dostosowywać się do bieżących potrzeb, zarówno pod względem mocy obliczeniowej, jak i funkcjonalności.
+
+### Przegląd rozwiązania
+Wykorzystanie platformy Knative umożliwia firmie XYZ dynamiczne zarządzanie serwisami przetwarzającymi obrazy. System składa się z dwóch głównych serwisów: Serwisu v1,
+przekształcającego obrazy do czarno-białych wersji, oraz Serwisu v2, który dodatkowo tworzy archiwa ZIP zawierające zarówno oryginał, czarno-białą wersję, jak i obrazy w sepii.
+Knative Serving pozwala na automatyczne skalowanie tych serwisów w odpowiedzi na aktualne obciążenie, zapewniając optymalizację zasobów.
+Ponadto, za pomocą Knative Eventing, system może automatycznie wyzwalać proces wysyłania powiadomień email po zakończonym przetwarzaniu, informując użytkowników o gotowości ich zamówień.
