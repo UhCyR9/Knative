@@ -44,15 +44,26 @@ Knative wprowadza również mechanizm do obsługi zdarzeń, który umożliwia tw
 
 ## Studium Problemu
 
+Studium problemu skupia się wokół demonstracji możliwości, jakie okferuje Knative. Pokazane zostaną takie aspekty jak traffic splitting, 
+
 ### Problem:
-W firmie XYZ, zajmującej się fotografią i mediami cyfrowymi, istnieje potrzeba efektywnego przetwarzania wysyłanych przez użytkowników obrazów.
-Różnorodność wymagań co do formatów przetwarzania (np. czarno-białe, sepii, kompresji) oraz wahania w ilości przesyłanych danych wymagają rozwiązania,
-które jest skalowalne i może dynamicznie dostosowywać się do bieżących potrzeb, zarówno pod względem mocy obliczeniowej, jak i funkcjonalności.
+W dynamicznie rozwijającym się świecie cyfrowych mediów, przedsiębiorstwa stają przed wyzwaniem efektywnego i skalowalnego przetwarzania obrazów. Zmieniające się wymagania dotyczące formatów i przetwarzania danych, takich jak konwersja do obrazów czarno-białych, tonacji sepii, a także dostosowanie różnych stopni kompresji, wymagają elastycznego podejścia do zarządzania zasobami. Kluczowe jest znalezienie rozwiązania, które potrafi dynamicznie dostosować się do wahających się ilości przesyłanych danych oraz obciążenia systemu, minimalizując jednocześnie koszty operacyjne.
 
 ### Przegląd rozwiązania
-Wykorzystanie platformy Knative umożliwia firmie XYZ dynamiczne zarządzanie serwisami przetwarzającymi obrazy. System składa się z dwóch głównych serwisów: Serwisu v1,
-przekształcającego obrazy do czarno-białych wersji, oraz Serwisu v2, który dodatkowo tworzy archiwa ZIP zawierające zarówno oryginał, czarno-białą wersję, jak i obrazy w sepii.
-Knative Serving pozwala na automatyczne skalowanie tych serwisów w odpowiedzi na aktualne obciążenie, zapewniając optymalizację zasobów.
-Ponadto, za pomocą Knative Eventing, system może automatycznie wyzwalać proces wysyłania powiadomień email po zakończonym przetwarzaniu, informując użytkowników o gotowości ich zamówień.
+Rozwiązanie bazujące na platformie Knative zapewnia elastyczność oraz skalowalność niezbędną do efektywnego przetwarzania i zarządzania obrazami w środowisku cyfrowym. Knative oferuje kluczowe funkcje takie jak automatyczne skalowanie serwisów i zarządzanie ruchem sieciowym, co pozwala na dynamiczną adaptację do zmieniających się warunków operacyjnych.
 
+####Architektura serwisów:
+
+W ramach projektu wdrożone zostaną dwa serwisy przetwarzające obrazy:
+
+ 1. Serwis Konwersji Monochromatycznej (S1) – stara wersja aplikacji, która kontynuuje przetwarzanie obrazów do czarno-białych wersji.
+ 2. Serwis Rozszerzonej Konwersji i Archiwizacji (S2) – nowa wersja aplikacji, która nie tylko konwertuje obrazy do czarno-białych i sepii, ale również tworzy kompleksowe archiwa ZIP.
+
+####Traffic Splitting:
+
+Wykorzystując funkcjonalność traffic splitting w Knative, firma może stopniowo przenosić ruch użytkowników z serwisu S1 na bardziej rozbudowany serwis S2. Początkowo, tylko 20% ruchu sieciowego może być przekierowane na S2, pozwalając użytkownikom stopniowo przyzwyczajać się do nowej wersji, jednocześnie monitorując stabilność i wydajność nowego serwisu. Z czasem rozdział ruchu sieciowego może się elastycznie zwiększać na rzecz serwisu S2 w zależności od potrzeb klienta.
+
+####Automatyzacja dzięki Knative Eventing:
+
+Knative Eventing pozwala na automatyzację procesów powiązanych z zakończeniem przetwarzania obrazów, takich jak wysyłanie powiadomień e-mail. Dzięki temu użytkownicy są na bieżąco informowani o statusie przetworzonych danych, co stanowi zwiększenie wydajności korzystania z dostępnych serwisów.
 ![demo](img/demo.jpg)
