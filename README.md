@@ -69,4 +69,4 @@ Knative Eventing pozwala na automatyzację procesów powiązanych z zakończenie
 
 
 
-![demo](img/demo.jpg)
+![demo](img/demov2.jpg)
