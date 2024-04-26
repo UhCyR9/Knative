@@ -70,3 +70,25 @@ Knative Eventing pozwala na automatyzację procesów powiązanych z zakończenie
 
 
 ![demo](img/demov2.jpg)
+
+### Opis konfiguracji demo
+#### Klaster lokalny:
+W celu demonstracji funkcjonalności Knative, postawiony zostanie lokalny kluster kubernetes przy wykorzystaniu technologii Minikube. Takie podejście pozwoli przedstawić możliwości Knative, bez konieczności wykorzystywania usług chmurowych.
+
+#### Implementacja dwóch serwisów jako obrazy Dockerowe w Pythonie:
+Serwis Konwersji Monochromatycznej (S1): Istniejący serwis, który będzie odpowiedzialny za przetwarzanie obrazów do czarno-białych wersji.
+Serwis Rozszerzonej Konwersji i Archiwizacji (S2): Nowa wersja serwisu, która nie tylko wykonuje konwersję obrazów do czarno-białych i sepii, ale także tworzy kompleksowe archiwa ZIP.
+
+#### Setup środowiska:
+- Kubernetes: Zapewni infrastrukturę dla uruchomienia klastra i zarządzania kontenerami.
+- Knative Serving: Umożliwi wdrażanie i zarządzanie serwisami oraz routingiem ruchu sieciowego.
+- Knative Eventing: Automatyzuje procesy związane z zakończeniem przetwarzania obrazów i wysyła powiadomienia e-mail.
+- Python (FastAPI oraz Pillow): Wykorzystany do implementacji logiki biznesowej serwisów przetwarzających obrazy.
+- Docker: Konteneryzacja aplikacji, ułatwiająca wdrażanie w środowisku Knative i Kubernetes.
+- SendGrid: Wykorzystany do mechanizmu wysyłania e-maili, informujących użytkowników o zakończonym przetwarzaniu obrazów.
+  
+#### Interakcje pomiędzy komponentami:
+Serwisy S1 i S2 będą działać jako niezależne komponenty, przetwarzając obrazy i generując zdarzenia informujące o zakończeniu przetwarzania.
+Broker Knative będzie monitorował te zdarzenia a następnie generował trigery w celu wysyłania powiadomień e-mail za pomocą SendGrid.
+#### Oczekiwane działanie:
+Użytkownik dostarcza wybrany obraz do przetwarzania. Po przetworzeniu obrazu przez serwisy S1 lub S2, broker Knative wygeneruje trigger, który spowoduje wysłanie powiadomienia e-mail za pomocą usługi SendGrid, informując użytkownika o zakończeniu przetwarzania obrazu.
