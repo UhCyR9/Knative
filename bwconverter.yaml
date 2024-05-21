@@ -1,0 +1,14 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: converter
+  namespace: converter
+spec:
+  template:
+    metadata:
+      name: converter-revision-v1
+    spec:
+      containers:
+        - image: uhcyr/bwconverter
+          ports:
+            - containerPort: 8000

@@ -1,0 +1,14 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: converter
+  namespace: converter
+spec:
+  template:
+    metadata:
+      name: converter-revision-v2
+    spec:
+      containers:
+        - image: uhcyr/sepiaconverter
+          ports:
+            - containerPort: 8000
