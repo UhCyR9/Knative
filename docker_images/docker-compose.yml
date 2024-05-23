@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  bwconverter:
+    image: uhcyr/bwconverter
+    restart: always
+    ports:
+      - "8000:8000"
+
+  sepiaconverter:
+    image: uhcyr/sepiaconverter
+    restart: always
+    ports:
+      - "8001:8000"
