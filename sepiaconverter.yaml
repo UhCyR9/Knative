@@ -12,3 +12,9 @@ spec:
         - image: uhcyr/sepiaconverter
           ports:
             - containerPort: 8000
+  traffic:
+    - latestRevision: true
+      percent: 20
+    - latestRevision: false
+      percent: 80
+      revisionName: converter-revision-v1
