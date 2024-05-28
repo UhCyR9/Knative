@@ -92,3 +92,50 @@ Serwisy S1 i S2 będą działać jako niezależne komponenty, przetwarzając obr
 Broker Knative będzie monitorował te zdarzenia a następnie generował trigery w celu wysyłania powiadomień e-mail za pomocą SendGrid.
 #### Oczekiwane działanie:
 Użytkownik dostarcza wybrany obraz do przetwarzania. Po przetworzeniu obrazu przez serwisy S1 lub S2, broker Knative wygeneruje trigger, który spowoduje wysłanie powiadomienia e-mail za pomocą usługi SendGrid, informując użytkownika o zakończeniu przetwarzania obrazu.
+
+## Opis instalacji
+1. Instalujemy potrzebne zależności, dodajemy do zmiennej środowiskowej PATH.
+- Docker - https://docs.docker.com/engine/install/
+- Kind (Kubernetes in Docker) - https://kind.sigs.k8s.io/docs/user/quick-start
+- Kubernetes CLI - https://kubernetes.io/docs/tasks/tools/
+- Knative CLI - https://knative.dev/docs/client/install-kn/
+- Knative quickstart plugin - https://knative.dev/docs/install/quickstart-install/#install-the-knative-cli
+
+2. Uruchamiamy klaster z zainstalowanym Knative, korzystając z pluginu quickstart
+```
+kn quickstart kind
+```
+>Quickstart używa portu 80 i nie uda się go zainstalować, jeśli na tym porcie są powiązane jakiekolwiek inne usługi. Jeśli masz usługę korzystającą z portu 80, musisz ją zatrzymać przed użyciem quickstart.
+
+**Quickstart tworzy klaster kubernetesa automatycznie, nie musimy tworzyć żadnego innego klastra**
+
+3. Weryfikujemy stworzony klaster
+```
+kind get clusters
+```
+4. Tworzymy namespace dedykowany dla naszej aplikacji
+```
+kubectl create namespace converter
+```
+5. Tworzymy pierwszą rewizję naszej aplikacji korzystając z ``bwconverter.yaml``
+```
+kubectl apply -f <PATH TO bwconverter.yaml> -n converter
+```
+6. Weryfikujemy naszą rewizję
+```
+kn revisions list -n converter
+```
+7. Jeśli nasza rewizja posiada status ``READY = True``, dodajemy drugą rewizję z konfiguracją rozdzielania ruchu korzystając z pliku ``sepiaconverter.yaml``
+```
+kubectl apply -f <PATH TO sepiaconverter.yaml> -n converter
+```
+8. Weryfikujemy ponownie nasze rewizje, powinniśmy zobaczyć coś takiego
+```
+NAME                   SERVICE    TRAFFIC  TAGS  GENERATION  AGE  CONDITIONS  READY  REASON
+converter-revision-v2  converter  20%            2           10m  3 OK / 4    True 
+converter-revision-v1  converter  80%            1           36m  3 OK / 4    True
+```
+9. Jeśli wszystko się udało nasza aplikacja powinna być dostępna pod adresem
+```
+kn service describe converter -o url -n converter
+``` 
