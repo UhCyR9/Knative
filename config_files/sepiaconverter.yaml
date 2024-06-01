@@ -2,7 +2,6 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: converter
-  namespace: converter
 spec:
   template:
     metadata:
@@ -14,7 +13,7 @@ spec:
             - containerPort: 8000
   traffic:
     - latestRevision: true
-      percent: 20
+      percent: 30
     - latestRevision: false
-      percent: 80
+      percent: 70
       revisionName: converter-revision-v1

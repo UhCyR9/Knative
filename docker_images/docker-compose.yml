@@ -12,3 +12,9 @@ services:
     restart: always
     ports:
       - "8001:8000"
+
+  imageprocessor:
+    image: uhcyr/image-processor
+    restart: always
+    ports:
+      - "8080:8080"

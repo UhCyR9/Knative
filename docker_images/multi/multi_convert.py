@@ -1,33 +1,107 @@
 from fastapi import FastAPI, File, UploadFile, Query
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
 from PIL import Image, ImageOps
 import io
-import zipfile
 import asyncio
+import requests
+import base64
 
 app = FastAPI()
 
-def convert_sepia(input_image):
-    sepia_image = ImageOps.colorize(ImageOps.grayscale(input_image), '#704214', '#C0A080')
+def send_event(email, image_data):
+    event = {
+        "type": "dev.knative.email.imageprocessed",
+        "source": "email/image-processor",
+        "data": {
+            "user_email": email,
+            "image_data": image_data
+        }
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Ce-Id": "image-processed",
+        "Ce-Specversion": "1.0",
+        "Ce-Type": "dev.knative.email.imageprocessed",
+        "Ce-Source": "email/image-processor"
+    }
+    response = requests.post('http://broker-ingress.knative-eventing.svc.cluster.local/default/default', json=event, headers=headers)
+    if response.status_code != 200:
+        print(f"Failed to send event: {response.status_code}, {response.text}")
+
+def convert_to_sepia(image: Image.Image) -> Image.Image:
+    sepia_image = ImageOps.colorize(ImageOps.grayscale(image), '#704214', '#C0C080')
     return sepia_image
 
 @app.post("/convert/")
-async def convert_image(file: UploadFile = File(...), wait: int = Query(default=None)):
+async def convert(file: UploadFile = File(...), wait: int = Query(default=None), email: str = Query(...)):
     if wait:
         await asyncio.sleep(wait)
 
     contents = await file.read()
     image = Image.open(io.BytesIO(contents))
-    gray_image = ImageOps.grayscale(image)
-    sepia_image = convert_sepia(image)
+    sepia_image = convert_to_sepia(image)
+    img_byte_array = io.BytesIO()
+    sepia_image.save(img_byte_array, format="PNG")
+    img_byte_array.seek(0)
 
-    img_byte_arr = io.BytesIO()
-    with zipfile.ZipFile(img_byte_arr, mode='w') as zipf:
-        for img, name in zip([image, gray_image, sepia_image], ["original.jpg", "black_and_white.jpg", "sepia.jpg"]):
-            img_byte_io = io.BytesIO()
-            img.save(img_byte_io, format='JPEG')
-            img_byte_io.seek(0)
-            zipf.writestr(name, img_byte_io.read())
+    image_data = base64.b64encode(img_byte_array.read()).decode('utf-8')
 
-    img_byte_arr.seek(0)
-    return StreamingResponse(img_byte_arr, media_type="application/zip", headers={"Content-Disposition": "attachment; filename=result.zip"})
+    send_event(email, image_data)
+
+    img_byte_array.seek(0)
+
+    return StreamingResponse(img_byte_array, media_type="image/jpeg")
+
+
+@app.get("/", response_class=HTMLResponse)
+async def main():
+    content = """
+    <html>
+        <head>
+            <title>Image Converter</title>
+            <script>
+                async function submitForm(event) {
+                    event.preventDefault();
+                    const form = document.getElementById('uploadForm');
+                    const formData = new FormData(form);
+                    const waitValue = document.getElementById('wait').value;
+                    const emailValue = document.getElementById('email').value;
+                    
+                    const queryChar = form.action.includes('?') ? '&' : '?';
+                    const action = form.action + queryChar + 'wait=' + waitValue + '&email=' + encodeURIComponent(emailValue);
+                    
+                    try {
+                        const response = await fetch(action, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            alert('POST request sent successfully!');
+                        } else {
+                            alert('Failed to send POST request');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while sending POST request');
+                    }
+                }
+            </script>
+        </head>
+        <body>
+            <h1>Upload an Image (sepia)</h1>
+            <form id="uploadForm" action="/convert" method="post" enctype="multipart/form-data" onsubmit="submitForm(event)">
+                <input type="file" name="file">
+                <br><br>
+                <label for="wait">Wait time (seconds):</label>
+                <input type="number" id="wait" name="wait">
+                <br><br>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email">
+                <br><br>
+                <input type="submit" value="Upload">
+            </form>
+        </body>
+    </html>
+    """
+    return content

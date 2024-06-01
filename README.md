@@ -94,7 +94,11 @@ Broker Knative będzie monitorował te zdarzenia a następnie generował trigery
 Użytkownik dostarcza wybrany obraz do przetwarzania. Po przetworzeniu obrazu przez serwisy S1 lub S2, broker Knative wygeneruje trigger, który spowoduje wysłanie powiadomienia e-mail za pomocą usługi SendGrid, informując użytkownika o zakończeniu przetwarzania obrazu.
 
 ## Opis instalacji
-1. Instalujemy potrzebne zależności, dodajemy do zmiennej środowiskowej PATH.
+
+### __Traffic Splitting__
+<br>
+
+1. Instalujemy potrzebne zależności, dodajemy do zmiennej środowiskowej PATH
 - Docker - https://docs.docker.com/engine/install/
 - Kind (Kubernetes in Docker) - https://kind.sigs.k8s.io/docs/user/quick-start
 - Kubernetes CLI - https://kubernetes.io/docs/tasks/tools/
@@ -113,29 +117,98 @@ kn quickstart kind
 ```
 kind get clusters
 ```
-4. Tworzymy namespace dedykowany dla naszej aplikacji
+4. Tworzymy pierwszą rewizję naszej aplikacji korzystając z ``bwconverter.yaml``
 ```
-kubectl create namespace converter
+kubectl apply -f <PATH TO bwconverter.yaml>
 ```
-5. Tworzymy pierwszą rewizję naszej aplikacji korzystając z ``bwconverter.yaml``
+5. Weryfikujemy naszą rewizję
 ```
-kubectl apply -f <PATH TO bwconverter.yaml> -n converter
+kn revisions list
 ```
-6. Weryfikujemy naszą rewizję
+6. Jeśli nasza rewizja posiada status ``READY = True``, dodajemy drugą rewizję z konfiguracją rozdzielania ruchu korzystając z pliku ``sepiaconverter.yaml``
 ```
-kn revisions list -n converter
+kubectl apply -f <PATH TO sepiaconverter.yaml>
 ```
-7. Jeśli nasza rewizja posiada status ``READY = True``, dodajemy drugą rewizję z konfiguracją rozdzielania ruchu korzystając z pliku ``sepiaconverter.yaml``
-```
-kubectl apply -f <PATH TO sepiaconverter.yaml> -n converter
-```
-8. Weryfikujemy ponownie nasze rewizje, powinniśmy zobaczyć coś takiego
+7. Weryfikujemy ponownie nasze rewizje, powinniśmy zobaczyć coś takiego
 ```
 NAME                   SERVICE    TRAFFIC  TAGS  GENERATION  AGE  CONDITIONS  READY  REASON
-converter-revision-v2  converter  20%            2           10m  3 OK / 4    True 
-converter-revision-v1  converter  80%            1           36m  3 OK / 4    True
+converter-revision-v2  converter  30%            2           10m  3 OK / 4    True 
+converter-revision-v1  converter  70%            1           36m  3 OK / 4    True
 ```
-9. Jeśli wszystko się udało nasza aplikacja powinna być dostępna pod adresem
+8. Jeśli wszystko się udało nasza aplikacja powinna być dostępna pod adresem
 ```
-kn service describe converter -o url -n converter
+kn service describe converter -o url
 ``` 
+<br>
+
+### __Prometeus i Grafana__
+<br>
+
+1. Instalujemy helm i dodajemy go do zmiennej środowiskowej PATH
+https://helm.sh/docs/intro/install/
+
+2. Dodajemy i aktualizujemy repozytorium helm
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+```
+3. Instalujemy prometheus wykorzystając plik ``prometheus_chart.yaml``
+```
+helm install prometheus prometheus-community/prometheus -f <PATH TO prometheus_chart.yaml>
+```
+
+4. Stosujemy rozszerzenie ServiceMonitor/PodMonitor aby zbierać metryki z Knative
+```
+kubectl apply -f https://raw.githubusercontent.com/knative-extensions/monitoring/main/servicemonitor.yaml
+```
+
+5. Aby dostać się do dashboardu prometheusa, uruchamiamy port-forward
+```
+kubectl port-forward -n default svc/prometheus-kube-prometheus-prometheus 9090:9090
+```
+
+6. Prometheus powinien być dostępny pod adresem
+```
+http://localhost:9090
+```
+
+7. Aby dostać się do dashboardu grafany, uruchamiamy port-forward
+```
+kubectl port-forward -n default svc/prometheus-grafana 3000:80
+```
+
+8. Grafana powinna być dostępna pod adresem
+```
+http://localhost:3000
+```
+
+9. Logujemy się do grafany używając domyślnych danych
+```
+username: admin
+password: prom-operator
+```
+
+10. Importujemy dashboardy dostępne na githubie knative-extensions
+```
+kubectl apply -f https://raw.githubusercontent.com/knative-extensions/monitoring/main/grafana/dashboards.yaml
+```
+
+<br>
+
+### __Knative serving__
+<br>
+
+1. Tworzymy broker który będzie odpowiedzialny za wysyłanie maili korzystając z pliku ``broker.yaml``
+```
+kubectl apply -f <PATH TO broker.yaml>
+```
+
+2. Tworzymy serwis wysyłający maile korzystając z pliku ``mail_service.yaml``
+```
+kubectl apply -f <PATH TO mail_service.yaml>
+```
+
+3. Tworzymy trigger który będzie przyjmował zdarzenia zakończenia przetwarzania obrazów korzystając z pliku ``email_trigger.yaml`` oraz będzie wywoływał serwis wysyłający maile
+```
+kubectl apply -f <PATH TO email_trigger.yaml>
+```
