@@ -40,7 +40,6 @@ Knative wprowadza również mechanizm do obsługi zdarzeń, który umożliwia tw
   * Pillow - biblioteka do przetwarzania obrazów.
 * Docker - służący do konteneryzacji aplikacji, ułatwiający wdrażanie w Knative i Kubernetes.
 * Prometheus i Grafana - służące do monitorowania metryk aplikacji.
-* SendGrid - pomocny w mechaniźmie wysyłania e-maili.
 
 ## Studium Problemu
 
@@ -195,7 +194,7 @@ kubectl apply -f https://raw.githubusercontent.com/knative-extensions/monitoring
 
 <br>
 
-### __Knative serving__
+### __Knative eventing__
 <br>
 
 1. Tworzymy broker który będzie odpowiedzialny za wysyłanie maili korzystając z pliku ``broker.yaml``
@@ -212,3 +211,31 @@ kubectl apply -f <PATH TO mail_service.yaml>
 ```
 kubectl apply -f <PATH TO email_trigger.yaml>
 ```
+
+### __Demo__
+
+#### Lista utworzonych rewizji:
+<img src="img/image.png" alt="Alt text" width="1000px" />
+Jak można zauważyć, ruch jest dzielony w proporcji 70/30 pomiędzy starym(black and white) i nowym (sepia) serwisem.
+
+#### Traffic splitting
+
+<img src="img/image-2.png" alt="Alt text" width="1000px" />
+<br>
+Rewizja 1
+<br>
+
+<br>
+<img src="img/image-3.png" alt="Alt text" width="1000px" />
+Rewizja 2
+<br>
+
+<br>
+
+#### Skalowanie 
+<img src="img/image-4.png" alt="Alt text" width="1000px" />
+<img src="img/image-5.png" alt="Alt text" width="1000px" />
+
+Wraz z narastaniem ruchu, można zaobserwować tworzenie nowych podów do obsługi zapytań, po ich wykonaniu, pody są zamykane.
+
+#### Eventing
