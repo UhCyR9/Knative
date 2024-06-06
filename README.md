@@ -239,3 +239,4 @@ Rewizja 2
 Wraz z narastaniem ruchu, można zaobserwować tworzenie nowych podów do obsługi zapytań, po ich wykonaniu, pody są zamykane.
 
 #### Eventing
+<img src="img/image-6.png" alt="Alt text" width="1000px" />
