@@ -240,3 +240,5 @@ Wraz z narastaniem ruchu, można zaobserwować tworzenie nowych podów do obsłu
 
 #### Eventing
 <img src="img/image-6.png" alt="Alt text" width="1000px" />
+Dzięki mechanizmowi eventów dostarczanego przez Knative, nasz serwis po przeprocesowaniu obrazu wysyła event wskazujący na zakończenie zadania,
+co skutkuje wysłaniem do użytkownika maila z informacją o zakończeniu działania oraz z przetworzonym obrazem.
