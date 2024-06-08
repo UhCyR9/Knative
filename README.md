@@ -242,3 +242,13 @@ Wraz z narastaniem ruchu, można zaobserwować tworzenie nowych podów do obsłu
 <img src="img/image-6.png" alt="Alt text" width="1000px" />
 Dzięki mechanizmowi eventów dostarczanego przez Knative, nasz serwis po przeprocesowaniu obrazu wysyła event wskazujący na zakończenie zadania,
 co skutkuje wysłaniem do użytkownika maila z informacją o zakończeniu działania oraz z przetworzonym obrazem.
+
+## Wnioski
+Projekt pokazuje, że Knative jest potężnym narzędziem do zarządzania i skalowania aplikacji kontenerowych w środowisku Kubernetes. Wykorzystanie Knative umożliwia dynamiczne skalowanie serwisów oraz zarządzanie ruchem sieciowym, co jest kluczowe w kontekście zmiennych obciążeń i wymagań. Funkcjonalności takie jak traffic splitting pozwalają na płynne przechodzenie między różnymi wersjami aplikacji, co minimalizuje ryzyko podczas wdrażania nowych funkcjonalności. Ponadto, integracja z systemami eventowymi umożliwia automatyzację wielu procesów, co znacznie zwiększa efektywność apliakcji.  
+Implementacja serwisów przetwarzających obrazy oraz monitorowanie ich działania za pomocą Prometheus i Grafana pokazuje, jak łatwo można monitorować i optymalizować wydajność aplikacji. Całość demonstruje, że dzięki Knative można z łatwością zarządzać złożonymi aplikacjami, zwiększając ich skalowalność, niezawodność i elastyczność.
+
+### Źródła
+<https://knative.dev/docs/>\
+<https://opensource.com/article/21/2/knative-eventing>\
+<https://kind.sigs.k8s.io/>\
+<https://github.com/knative/docs>
